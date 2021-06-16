@@ -1,0 +1,322 @@
+---
+title: "Final Project DSC520"
+author: "Mohit Matta"
+date: "February 27th, 2020"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  theme: cayman
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Introduction
+
+Diabetes, often described as a “Disease of Civilization”, is a major public health problem that is approaching epidemic proportions globally. Undiagnosed diabetes can be predisposing factor  to a fatal cardiac stroke. Its exponentially increasing cases has become a matter of concern world wide. Usually onset of type 2 diabetes happens in middle age and sometimes in old age. But nowadays incidences of this disease are reported in children as well. Risk factors leading to diabetes range from genetic susceptibility and body weight to food habits and lifestyle. Adult with diabetes have a two-to-three fold increased risk of heart attacks, neuropathy, foot ulcers, limb amputation and kidney failure. Early diagnosis is crucial and can be accomplished through relatively inexpensive testing of blood sugar. Diabetes can be controlled by promoting healthy diet and regular exercise, thereby reducing the growing global problem of overweight people and obesity.
+
+Classification is one of the most important decision making techniques in many real world problem. In this work, the main objective is to classify the data as diabetic or non-diabetic and improve the classification accuracy. The main objective of our model is to achieve high accuracy.Classification accuracy can be increased if we use much of the data set for training and few data sets for testing.The aim of this project is to develop a system which can predict the diabetic risk level of a patient with a higher accuracy. 
+
+
+```{r loading_packages, message=FALSE, warning=FALSE}
+library(readr)
+library(dplyr)
+library(corrplot)
+library(class)
+
+library(reprex)
+```
+
+
+### Data
+
+The dataset can be downloaded from the link. ( https://www.kaggle.com/uciml/pima-indians-diabetes-database#diabetes.csv)
+
+
+This dataset is originally from the National Institute of Diabetes and Digestive and Kidney Diseases. The objective of the dataset is to diagnostically predict whether or not a patient has diabetes, based on certain diagnostic measurements included in the dataset. Several constraints were placed on the selection of these instances from a larger database. In particular, all patients here are females at least 21 years old of Pima Indian heritage.The dataset contains 9 columns and 2000 observations.The format is csv.Below are the column names and their description:
+
+
+Pregnancies: Number of times pregnant
+
+Glucose: Plasma glucose concentration over 2 hours in an oral glucose tolerance test
+
+BloodPressure: Diastolic blood pressure (mm Hg)
+
+SkinThickness: Triceps skin fold thickness (mm)
+
+Insulin: 2-Hour serum insulin (mu U/ml)
+
+BMI: Body mass index (weight in kg/(height in m)2)
+
+DiabetesPedigreeFunction: Diabetes pedigree function (a function which scores likelihood of diabetes based on family history)
+
+Age: Age (years)
+
+Outcome: Class variable (0 if non-diabetic, 1 if diabetic)
+
+
+
+## Import and Clean Dataset
+
+
+
+Raw data files may lack headers, contain wrong data types (e.g. numbers stored as strings), wrong category labels, unknown or unexpected character encoding and so on. In short, reading such files into an R data.frame directly is either difficult or impossible without some sort of preprocessing. We can say data is technically correct only after preprocessing is completed and data can be read with correct labels/datatypes.Below is the logical process I am planning to follow :
+
+1) Obtain the dataset
+2) Clean our dataset
+3) Explore/Visualize dataset to allow to find patterns and trends
+4) Model the data for predictive power 
+5) Interpret the data
+
+Below is the structure of raw dataset :
+
+```{r,echo=FALSE}
+ diabetes2 <- read.csv("diabetes-2.csv",header=TRUE)
+str(diabetes2)
+```
+
+Below is the summary of dataset :
+```{r,echo=FALSE}
+ diabetes2 <- read.csv("diabetes-2.csv",header=TRUE)
+summary(diabetes2)
+```
+
+We can see in summary that , the columns Glucose, BloodPressure, SkinThickness, Insulin and BMI  have an invalid zero value.The 0 value does not make sense and indicates missing value.It is better to replace zeros with nan since after that counting them would be easier and zeros need to be replaced with suitable values
+
+Below are some sample records from raw dataset :
+```{r,echo=FALSE}
+ diabetes2 <- read.csv("diabetes-2.csv",header=TRUE)
+ head(diabetes2)
+```
+
+We will now check if the dataset contains any NA values that needs to be removed , below code will show true for any NA values:
+
+#Check if there is any value in dataset with NA 
+
+any(is.na(diabetes2))
+
+```{r,echo=FALSE}
+ diabetes2 <- read.csv("diabetes-2.csv",header=TRUE)
+any(is.na(diabetes2))
+```
+
+This clearly shows that the dataset does not contain any NA values.
+
+### Clean the dataset
+
+We will first replace all 0 values for Glucose, BloodPressure,SkinThickness,Insulin and BMI columns using below code:
+
+diabetes2[, 2:6][diabetes2[, 2:6] == 0] <- NA
+
+```{r,echo=FALSE, warning=FALSE, message = FALSE}
+diabetes2[, 2:6][diabetes2[, 2:6] == 0] <- NA
+```
+
+We will now remove all NA values using below code :
+
+diabetes_clean <- na.omit(diabetes2)
+
+Lets see the structure of clean dataset after removing the values:
+
+```{r,echo=FALSE, warning=FALSE, message = FALSE}
+diabetes_clean <- na.omit(diabetes2)
+str(diabetes_clean)
+```
+It now contains 1035 observations. As we can see outcome variable is and integer ,we will need to factor the outcome variable using below code :
+
+**diabetes_clean`$`Outcome <- as.factor(diabetes_clean$Outcome)**
+
+```{r,echo=FALSE, warning=FALSE, message = FALSE}
+diabetes_clean$Outcome <- as.factor(diabetes_clean$Outcome)
+```
+
+
+```{r,echo=FALSE, warning=FALSE, message = FALSE}
+head(diabetes_clean)
+```
+
+# Count number of outcomes in cleaned dataset with 0 and 1 values
+
+```{r,echo=FALSE, warning=FALSE, message = FALSE}
+table(diabetes_clean$Outcome)
+```
+
+
+
+Below is the correlation matrix:
+
+```{r,echo=FALSE, warning=FALSE, message = FALSE}
+diabetes2 <- read.csv("diabetes-2.csv",header=TRUE)
+diabetes2[, 2:6][diabetes2[, 2:6] == 0] <- NA
+diabetes_clean <- na.omit(diabetes2)
+library(corrplot)
+cor(diabetes_clean[1:9])
+```
+
+### Correlation Plot of different variables 
+
+```{r,echo=FALSE, warning=FALSE, message = FALSE}
+corrplot(cor(diabetes_clean[1:9]))
+diabetes_clean$Outcome <- as.factor(diabetes_clean$Outcome)
+```
+
+### Age distribution of data with different age groups 
+
+```{r,echo=FALSE, warning=FALSE, message = FALSE}
+diabetes_clean$age1 <- ifelse(diabetes_clean$Age < 21, "AGEGROUP1", 
+                  ifelse((diabetes_clean$Age>=21) & (diabetes_clean$Age<=30), "AGEGROUP2", 
+                  ifelse((diabetes_clean$Age>31) & (diabetes_clean$Age<=40), "AGEGROUP3",
+                  ifelse((diabetes_clean$Age>41) & (diabetes_clean$Age<=50), "AGEGROUP4",
+                  ifelse((diabetes_clean$Age>51) & (diabetes_clean$Age<=60), "AGEGROUP5","AGEGROUP6_>60")))))
+
+table(diabetes_clean$age1)
+library(ggplot2)
+ggplot(aes(x = age1), data = diabetes_clean) +
+  geom_bar(fill='steelblue')
+```
+
+
+### Data Visualization
+
+```{r,echo=FALSE, warning=FALSE, message = FALSE}
+library(ggvis)
+ggplot(aes(x=Age),data=diabetes_clean)+ geom_histogram(binwidth = 1.5)
+ggplot(aes(x=Pregnancies),data=diabetes_clean)+ geom_histogram(binwidth = 1.5)
+ggplot(aes(x=Insulin),data=diabetes_clean)+ geom_histogram(binwidth = 10)
+ggplot(aes(x=Glucose),data=diabetes_clean)+ geom_histogram(binwidth = 1.5)
+g <- ggplot(diabetes_clean, aes(Pregnancies,Outcome))
+g + geom_boxplot(varwidth=T) + 
+  labs(title="Pregnancies Vs Diabetes", 
+       
+       caption="Source: diabetes dataset",
+       x="Number of Pregnancies",
+       y="Outcome")
+
+ggplot(aes(x=age1, y = BMI), data = diabetes_clean) +
+  geom_boxplot() +
+  coord_cartesian(ylim = c(0,70))
+
+diabetes_clean %>% ggvis(~Glucose,~Insulin,fill=~Outcome) %>% layer_points()
+```       
+
+## Apply Linear regression model on dataset 
+
+We will now apply linear regression model on the dataset and will calculate the accuracy of model prediction:
+
+```{r,echo=FALSE, warning=FALSE, message = FALSE}
+library(MASS)
+library(magrittr) 
+library(dplyr) 
+library(caret)
+library(caret)
+diabetes_clean$Outcome <- factor(diabetes_clean$Outcome)
+set.seed(1234)
+index <- sample(2,nrow(diabetes_clean),replace=T,prob = c(0.7,0.3))
+training <- diabetes_clean[index==1,]
+test <- diabetes_clean[index==2,]
+table(diabetes_clean$Outcome)
+training$Outcome <- factor(training$Outcome)
+test$Outcome <- factor(test$Outcome)
+outcome.glm <- glm(Outcome ~ ., data = training, family = binomial)
+anova(outcome.glm, test="Chisq")
+outcome.glm1 <- stepAIC(outcome.glm, direction = "both")
+test$model_prob <- predict(outcome.glm,test,type='response')
+test <- test  %>% mutate(model_pred = 1*(model_prob > .53) + 0  )
+test$model_pred <- factor(test$model_pred)
+test <- test %>% mutate(accurate = 1*(model_pred == Outcome))
+sum(test$accurate)/nrow(test)
+
+```
+
+The top three most relevant features are "Glucose", "BMI" and "Number of times pregnant" because of the low p-values."Insulin" and "Age" appear not statistically significant.From the table of deviance, we can see that adding insulin and age have little effect on the residual deviance.
+
+The below is the confustion matrix of linear regression model:
+
+```{r,echo=FALSE, warning=FALSE, message = FALSE}
+confusionMatrix(test$model_pred,test$Outcome)
+```
+
+
+
+### Apply K-Nearest model on dataset 
+
+We will apply K nearest algorithm/model to predict the accuracy of model for different k-values from 5 to 30 and will draw a plot to see which k values have highest accuracy: 
+
+```{r,echo=FALSE, warning=FALSE, message = FALSE}
+library(reprex)
+diabetes_clean <- na.omit(diabetes2)
+diabetes_clean$Outcome <- factor(diabetes_clean$Outcome)
+set.seed(1234)
+index <- sample(2,nrow(diabetes_clean),replace=T,prob = c(0.7,0.3))
+training <- diabetes_clean[index==1,]
+test <- diabetes_clean[index==2,]
+training$Outcome <- factor(training$Outcome)
+test$Outcome <- factor(test$Outcome)
+
+knn.3 <- knn(train=training, test=test,cl=training$Outcome, k=3)
+confusionMatrix(knn.3,test$Outcome)
+
+knn.5 <- knn(train=training, test=test,cl=training$Outcome, k=5)
+confusionMatrix(knn.5,test$Outcome)
+
+knn.10 <- knn(train=training, test=test,cl=training$Outcome, k=10)
+confusionMatrix(knn.10,test$Outcome)
+
+knn.15 <- knn(train=training, test=test,cl=training$Outcome, k=15)
+confusionMatrix(knn.15,test$Outcome)
+
+knn.20 <- knn(train=training, test=test,cl=training$Outcome, k=20)
+confusionMatrix(knn.20,test$Outcome)
+
+knn.25 <- knn(train=training, test=test,cl=training$Outcome, k=25)
+confusionMatrix(knn.25,test$Outcome)
+
+
+
+trControl <- trainControl(method = "repeatedcv",number = 10,repeats = 3)
+set.seed(222)
+fit <- train(Outcome ~ .,data=training,method='knn',tuneLength=20,trControl=trControl)
+fit
+pred <- predict(fit,newdata = test)
+plot(fit)
+```
+
+From the plot we can see that the model with k value=5 had the highest accuracy of 81%.
+
+### Apply Decision Tree algorithm on datasets  
+
+```{r,echo=FALSE, warning=FALSE, message = FALSE}
+library(rpart)
+diabetes_clean$Outcome <- factor(diabetes_clean$Outcome)
+set.seed(1234)
+index <- sample(2,nrow(diabetes_clean),replace=T,prob = c(0.7,0.3))
+training <- diabetes_clean[index==1,]
+test <- diabetes_clean[index==2,]
+
+model2 <- rpart(Outcome ~ Pregnancies + Glucose + BMI + DiabetesPedigreeFunction, data=training,method="class")
+plot(model2, uniform=TRUE, 
+     main="Classification Tree for Diabetes")
+text(model2, use.n=TRUE, all=TRUE, cex=.8)
+
+treePred <- predict(model2, test, type = 'class')
+
+table(treePred, test$Outcome)
+mean(treePred==test$Outcome)
+```
+
+Decision tree structure by using all features and Pima Indians dataset. From this figure, we can find in this method glucose as the root node, which can indicate the index has the highest information gain and insulin and age play important roles in this method.The above results show that the accuracy obtained through decision tree algorithms is 85%.
+
+
+### CONCLUSION
+
+Machine learning has the great ability to revolutionize the diabetes risk prediction with the help of advanced computational methods and availability of large amount of epidemiological and genetic diabetes risk dataset. Detection of diabetes in its early stages is the key for treatment. This work has described a machine learning approach to predicting diabetes levels. The technique may also help researchers to develop an accurate and effective tool that will reach at the table of clinicians to help them make better decision about the disease status.In this project, I compared the performance of Logistic Regression,KNN algorithms and Decision Tree algorithms and found that Decision tree performed better on this standard, unaltered dataset. However, there are things we can do to improve the generalization performance.
+
+### References:
+
+1) https://www.academia.edu/36963831/Diabetes_Prediction_Using_Machine_Learning_Techniques
+2) https://www.frontiersin.org/articles/10.3389/fgene.2018.00515/full
+3) https://www.kaggle.com/paultimothymooney/predict-diabetes-with-r-starter-kernel/data
