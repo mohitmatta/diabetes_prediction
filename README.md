@@ -103,15 +103,17 @@ The chi square test displayed the following statistics and proves that top three
 
 
 ### Prediction
-![A remote image](https://github.com/adanque/RentalPricePrediction/blob/main/results/PredictionValuesExample.png?raw=true)
-After feeding in the values for latitude, longitude and amenity information, my prediction code imputes the rest of the distance variables and makes pricing prediction.
-![A remote image](https://github.com/adanque/RentalPricePrediction/blob/main/results/PredictionValuesExampleResults.png?raw=true)
-However, since my Renthop apartment inventory data is from 2017, my predicted prices are what can be expected from 4 years ago. Given that the rental market usually raises apartment prices by $90-$150 each year, I believe my prediction power is working correctly. The current rental price for the apartment in my example is 3482. Which is a difference of $530. Thus, supporting an increase of $132 in lease rents.
 
-### Accuracy and MAE
-![A remote image](https://github.com/adanque/RentalPricePrediction/blob/main/results/Accuracy_MAE_Results.png?raw=true)
-Model Accuracy and MAE results are looking pretty interesting!
-To measure the accuracy and loss of my model, I am using a set of my predicted values minus the actual target values between my train and test data. Then taking the mean of the absolute value of each in the set of values to divide this number by my target test values and then multiply by 100 to generate a mean absolute percentage error.  I then subtract 100 minus the mean absolute percentage error to produce accuracy metrics.
+![A remote image](https://github.com/mohitmatta/diabetes_prediction/blob/90f43f860f8fdee85515cb22709ce8190ea9ab7b/Results/knn.png)
+
+![A remote image](https://github.com/mohitmatta/diabetes_prediction/blob/90f43f860f8fdee85515cb22709ce8190ea9ab7b/Results/knn.png)
+
+
+### Accuracy
+
+The accuracy of linear regression method was calculated to be 81.09%.
+The accuracy of KNN model after resampling and cross validation was found to be 81.2%
+The accuracy of decision tree model was found to be 85.57%
 
 
 ## References: 
