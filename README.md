@@ -6,7 +6,7 @@
 
 <a href="https://mohitmatta.github.io/">Click here to go back to Portfolio Website </a>
 
-![A remote image](https://mohitmatta.github.io/assets/img/work-analytics.jpg)
+![A remote image](https://github.com/mohitmatta/mohitmatta.github.io/blob/67e02bd0cd0e4994be39552c10317665d374d85c/assets/img/Diabetes_prediction.jpeg)
 
 Abstract: 
 
@@ -106,7 +106,7 @@ The chi square test displayed the following statistics and proves that top three
 
 ![A remote image](https://github.com/mohitmatta/diabetes_prediction/blob/90f43f860f8fdee85515cb22709ce8190ea9ab7b/Results/knn.png)
 
-![A remote image](https://github.com/mohitmatta/diabetes_prediction/blob/90f43f860f8fdee85515cb22709ce8190ea9ab7b/Results/knn.png)
+![A remote image](https://github.com/mohitmatta/diabetes_prediction/blob/dcedd992f6cb5a527bd671b285d47d014a3fad32/Results/decision_tree.png)
 
 
 ### Accuracy
