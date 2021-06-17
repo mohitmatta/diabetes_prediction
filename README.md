@@ -104,7 +104,11 @@ The chi square test displayed the following statistics and proves that top three
 
 ### Prediction
 
+K nearest algorithm/model was applied to predict the accuracy of model for different k-values from 5 to 30 and a map was plotted to see which k values have highest accuracy:
+
 ![A remote image](https://github.com/mohitmatta/diabetes_prediction/blob/90f43f860f8fdee85515cb22709ce8190ea9ab7b/Results/knn.png)
+
+Below graph was plotted after applying decision tree algorithm on the dataset:
 
 ![A remote image](https://github.com/mohitmatta/diabetes_prediction/blob/dcedd992f6cb5a527bd671b285d47d014a3fad32/Results/decision_tree.png)
 
